@@ -9,6 +9,12 @@ dotenv.config({
 
 const app = express();
 
+//! Configuration: telling express how to handle data from req
+app.use(express.json({limit: "16kb"}))
+app.use(express.urlencoded({extended: true, limit: "16kb"}))
+app.use(express.static("public")) //! temp files,img ect ko store karne ke liye public folder use karte hai
+
+
 
 
 connectDB()
@@ -30,6 +36,10 @@ connectDB()
 app.get("/", (req, res) => {
   res.send("working");
 });
+
+import paperRoutes from "./routes/paperRoutes.js";
+app.use("/api/papers", paperRoutes);
+
 
 
 

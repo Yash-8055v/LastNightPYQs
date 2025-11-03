@@ -1,32 +1,32 @@
 import mongoose, { Schema } from "mongoose";
 
 const paperSchema = new mongoose.Schema({
-  Subject: {
+  subject: {
     type: String,
     required: true
   },
-  University: {
+  university: {
+    type: String,
+    default: "MU"
+  },
+  department: {
     type: String,
     required: true
   },
-  Department: {
-    type: String,
-    required: true
-  },
-  Semester: {
+  semester: {
     type: Number,
     enum: [1,2,3,4,5,6,7,8],
     required: true
   },
-  Year: {
+  year: {
     type: Number,
     required: true
   },
-  PdfUrl: {
+  pdfUrl: {
     type: String,
     required: true
   },
-  UploadedBy: {
+  uploadedBy: {
     type: String,
     default: "Admin"
   },
