@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import connectDB from "./db/index.js";
+import authRoutes from "./routes/authRoutes.js";
 
 dotenv.config({
   path: './.env'
@@ -37,8 +38,12 @@ app.get("/", (req, res) => {
   res.send("working");
 });
 
+
+app.use("/api/auth", authRoutes);
 import paperRoutes from "./routes/paperRoutes.js";
 app.use("/api/papers", paperRoutes);
+
+
 
 
 
