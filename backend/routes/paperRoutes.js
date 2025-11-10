@@ -4,8 +4,11 @@ import { uploadPaper } from "../controllers/paper.controller.js";
 import { verifyAdmin } from "../middlewares/authMiddleware.js";
 import { deletePaper } from "../controllers/paper.controller.js";
 
+import { getPapers } from "../controllers/paper.controller.js";
+
 const router = express.Router();
 
+router.get("/", getPapers)
 
 router.post("/upload", verifyAdmin, upload.single("pdf"), uploadPaper);
 router.delete("/:id", verifyAdmin, deletePaper);

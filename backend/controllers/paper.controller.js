@@ -2,6 +2,29 @@ import { Paper } from "../models/paper.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { deleteFromCloudinary } from "../utils/cloudinary.js";
 
+// GET /api/papers
+export const getPapers = async (req, res) => {
+  try {
+    const filters = {};
+
+    // build dynamic filters from query params
+    if (req.query.university) filters.university = req.query.university;
+    if (req.query.department) filters.department = req.query.department;
+    if (req.query.semester) filters.semester = Number(req.query.semester);
+    if (req.query.year) filters.year = Number(req.query.year);
+
+    const papers = await Paper.find(filters).sort({ createdAt: -1 });
+
+    res.status(200).json({
+      count: papers.length,
+      papers
+    });
+
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch papers", error: error.message });
+  }
+};
+
 export const uploadPaper = async (req, res) => {
   try {
     console.log("Body:", req.body);
