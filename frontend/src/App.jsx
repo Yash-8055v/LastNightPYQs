@@ -1,21 +1,28 @@
-import { Routes, Route } from "react-router-dom";
-import Navbar from "./components/Navbar";
-import Home from "./pages/Home";
-import About from "./pages/About";
-import Login from "./pages/Login";
-import AdminDashboard from "./pages/AdminDashboard.jsx";
+import React, { useState } from 'react';
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
+import Home from './pages/Home';
+import About from './pages/About';
+import AdminDashboard from './pages/AdminDashboard';
 
 function App() {
+  const [currentPage, setCurrentPage] = useState('home');
+  const [showAdminModal, setShowAdminModal] = useState(false);
+
   return (
-    <>
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/admin" element={<AdminDashboard />} />
-      </Routes>
-    </>
+    <div className="min-h-screen bg-gray-900">
+      <Navbar 
+        currentPage={currentPage} 
+        setCurrentPage={setCurrentPage}
+        setShowAdminModal={setShowAdminModal}
+      />
+
+      {currentPage === 'home' && <Home />}
+      {currentPage === 'about' && <About />}
+      {currentPage === 'admin' && <AdminDashboard />}
+      
+      <Footer />
+    </div>
   );
 }
 
