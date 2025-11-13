@@ -16,6 +16,15 @@ app.use(express.urlencoded({extended: true, limit: "16kb"}))
 app.use(express.static("public")) //! temp files,img ect ko store karne ke liye public folder use karte hai
 
 
+import cors from "cors";
+
+// ✅ Allow frontend (localhost:5173) to access backend
+app.use(cors({
+  origin: "http://localhost:5173",
+  credentials: true
+}));
+
+
 
 
 connectDB()
