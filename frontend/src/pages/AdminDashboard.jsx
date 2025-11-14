@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, BarChart3, Users, FolderOpen, TrendingUp, FileText } from 'lucide-react';
 import { papersAPI } from '../utils/api';
+import { getSubjectsBySemester } from '../utils/subjectsData';
 
 const MOCK_DATA = {
   departments: ['Computer Science', 'Artificial Intelligence', 'Mechanical', 'Civil', 'Electrical', 'Electronics'],
@@ -305,7 +306,10 @@ function AdminDashboard() {
                       <label className="block text-gray-300 mb-3 font-semibold">Semester</label>
                       <select
                         value={formData.semester}
-                        onChange={(e) => setFormData({ ...formData, semester: e.target.value })}
+                        onChange={(e) => {
+                          // Reset subject when semester changes
+                          setFormData({ ...formData, semester: e.target.value, subject: '' });
+                        }}
                         className="w-full px-4 py-3 rounded-lg bg-gray-900/50 border border-gray-700 text-white focus:border-purple-500 focus:outline-none"
                       >
                         <option value="">Select</option>
@@ -332,13 +336,22 @@ function AdminDashboard() {
 
                   <div>
                     <label className="block text-gray-300 mb-3 font-semibold">Subject</label>
-                    <input
-                      type="text"
+                    <select
                       value={formData.subject}
                       onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                      placeholder="Enter subject name"
-                      className="w-full px-4 py-3 rounded-lg bg-gray-900/50 border border-gray-700 text-white placeholder-gray-400 focus:border-purple-500 focus:outline-none"
-                    />
+                      disabled={!formData.semester}
+                      className="w-full px-4 py-3 rounded-lg bg-gray-900/50 border border-gray-700 text-white focus:border-purple-500 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <option value="">
+                        {formData.semester ? 'Select Subject' : 'Select Semester First'}
+                      </option>
+                      {formData.semester && getSubjectsBySemester(parseInt(formData.semester)).map((subject) => (
+                        <option key={subject} value={subject}>{subject}</option>
+                      ))}
+                    </select>
+                    {!formData.semester && (
+                      <p className="text-gray-500 text-sm mt-1">Please select semester first</p>
+                    )}
                   </div>
 
                   <div>

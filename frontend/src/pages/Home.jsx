@@ -1,44 +1,34 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FileText, Download } from 'lucide-react';
+import { getSubjectsBySemester } from '../utils/subjectsData';
 
 const MOCK_DATA = {
-  categories: ['PYQs', 'Notes', 'Others'],
   departments: ['Computer Science', 'Artificial Intelligence', 'Mechanical', 'Civil', 'Electrical', 'Electronics'],
   semesters: [1, 2, 3, 4, 5, 6, 7, 8],
   years: [2021, 2022, 2023, 2024],
-  subjects: {
-    2021: ['Data Structures', 'Operating Systems', 'DBMS', 'Computer Networks'],
-    2022: ['Machine Learning', 'Web Development', 'Algorithms', 'Software Engineering'],
-    2023: ['AI Fundamentals', 'Cloud Computing', 'Blockchain', 'IoT'],
-    2024: ['Deep Learning', 'DevOps', 'Cybersecurity', 'Mobile Computing']
-  }
 };
 
 function Home() {
-  const [category, setCategory] = useState('');
   const [department, setDepartment] = useState('');
   const [semester, setSemester] = useState('');
-  const [showYears, setShowYears] = useState(false);
-  const [selectedYear, setSelectedYear] = useState(null);
+  const [year, setYear] = useState('');
+  const [subject, setSubject] = useState('');
+  const [showResults, setShowResults] = useState(false);
 
   const handleSearch = () => {
-    if (category && department && semester) {
-      setShowYears(true);
-      setSelectedYear(null);
+    if (department && semester && year && subject) {
+      setShowResults(true);
+      // TODO: Fetch papers from API with filters
     }
   };
 
-  const handleYearClick = (year) => {
-    setSelectedYear(year);
-  };
-
   const resetSearch = () => {
-    setCategory('');
     setDepartment('');
     setSemester('');
-    setShowYears(false);
-    setSelectedYear(null);
+    setYear('');
+    setSubject('');
+    setShowResults(false);
   };
 
   return (
@@ -56,7 +46,7 @@ function Home() {
         </motion.div>
 
         <AnimatePresence mode="wait">
-          {!showYears ? (
+          {!showResults ? (
             <motion.div
               key="filters"
               initial={{ opacity: 0, scale: 0.95 }}
@@ -64,20 +54,6 @@ function Home() {
               exit={{ opacity: 0, scale: 0.95 }}
               className="bg-gray-800/50 backdrop-blur-xl border border-gray-700 rounded-2xl p-8 space-y-6"
             >
-              <div>
-                <label className="block text-gray-300 mb-3 font-semibold">Category</label>
-                <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  className="w-full px-4 py-3 rounded-lg bg-gray-900/50 border border-gray-700 text-white focus:border-purple-500 focus:outline-none cursor-pointer"
-                >
-                  <option value="">Select Category</option>
-                  {MOCK_DATA.categories.map((cat) => (
-                    <option key={cat} value={cat}>{cat}</option>
-                  ))}
-                </select>
-              </div>
-
               <div>
                 <label className="block text-gray-300 mb-3 font-semibold">Department</label>
                 <select
@@ -92,104 +68,103 @@ function Home() {
                 </select>
               </div>
 
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-gray-300 mb-3 font-semibold">Semester</label>
+                  <select
+                    value={semester}
+                    onChange={(e) => {
+                      setSemester(e.target.value);
+                      setSubject(''); // Reset subject when semester changes
+                    }}
+                    className="w-full px-4 py-3 rounded-lg bg-gray-900/50 border border-gray-700 text-white focus:border-purple-500 focus:outline-none cursor-pointer"
+                  >
+                    <option value="">Select Semester</option>
+                    {MOCK_DATA.semesters.map((sem) => (
+                      <option key={sem} value={sem}>Semester {sem}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-gray-300 mb-3 font-semibold">Year</label>
+                  <select
+                    value={year}
+                    onChange={(e) => setYear(e.target.value)}
+                    className="w-full px-4 py-3 rounded-lg bg-gray-900/50 border border-gray-700 text-white focus:border-purple-500 focus:outline-none cursor-pointer"
+                  >
+                    <option value="">Select Year</option>
+                    {MOCK_DATA.years.map((yr) => (
+                      <option key={yr} value={yr}>{yr}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
               <div>
-                <label className="block text-gray-300 mb-3 font-semibold">Semester</label>
+                <label className="block text-gray-300 mb-3 font-semibold">Subject</label>
                 <select
-                  value={semester}
-                  onChange={(e) => setSemester(e.target.value)}
-                  className="w-full px-4 py-3 rounded-lg bg-gray-900/50 border border-gray-700 text-white focus:border-purple-500 focus:outline-none cursor-pointer"
+                  value={subject}
+                  onChange={(e) => setSubject(e.target.value)}
+                  disabled={!semester}
+                  className="w-full px-4 py-3 rounded-lg bg-gray-900/50 border border-gray-700 text-white focus:border-purple-500 focus:outline-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <option value="">Select Semester</option>
-                  {MOCK_DATA.semesters.map((sem) => (
-                    <option key={sem} value={sem}>Semester {sem}</option>
+                  <option value="">
+                    {semester ? 'Select Subject' : 'Select Semester First'}
+                  </option>
+                  {semester && getSubjectsBySemester(parseInt(semester)).map((subj) => (
+                    <option key={subj} value={subj}>{subj}</option>
                   ))}
                 </select>
+                {!semester && (
+                  <p className="text-gray-500 text-sm mt-1">Please select semester first</p>
+                )}
               </div>
 
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={handleSearch}
-                disabled={!category || !department || !semester}
+                disabled={!department || !semester || !year || !subject}
                 className="w-full py-4 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold text-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Search Resources
+                Search Papers
               </motion.button>
-            </motion.div>
-          ) : selectedYear === null ? (
-            <motion.div
-              key="years"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="space-y-6"
-            >
-              <div className="bg-gray-800/50 backdrop-blur-xl border border-gray-700 rounded-2xl p-6">
-                <p className="text-gray-400 mb-2">
-                  {category} • {department} • Semester {semester}
-                </p>
-                <h2 className="text-2xl font-bold text-white mb-6">Select Year</h2>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {MOCK_DATA.years.map((year) => (
-                    <motion.button
-                      key={year}
-                      whileHover={{ scale: 1.05, y: -5 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => handleYearClick(year)}
-                      className="p-6 rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 text-white font-bold text-2xl"
-                    >
-                      {year}
-                    </motion.button>
-                  ))}
-                </div>
-              </div>
             </motion.div>
           ) : (
             <motion.div
-              key="subjects"
+              key="results"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               className="space-y-6"
             >
               <div className="bg-gray-800/50 backdrop-blur-xl border border-gray-700 rounded-2xl p-6">
-                <p className="text-gray-400 mb-2">
-                  {category} • {department} • Semester {semester} • {selectedYear}
-                </p>
-                <h2 className="text-2xl font-bold text-white mb-6">Available Subjects</h2>
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <p className="text-gray-400 mb-2">
+                      {department} • Semester {semester} • {year} • {subject}
+                    </p>
+                    <h2 className="text-2xl font-bold text-white">Available Papers</h2>
+                  </div>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={resetSearch}
+                    className="px-4 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 text-white text-sm font-semibold"
+                  >
+                    Change Filters
+                  </motion.button>
+                </div>
+                
+                {/* Results will be displayed here after API integration */}
                 <div className="space-y-3">
-                  {MOCK_DATA.subjects[selectedYear].map((subject, idx) => (
-                    <motion.div
-                      key={subject}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: idx * 0.1 }}
-                      className="flex items-center justify-between p-4 rounded-lg bg-gray-900/50 border border-gray-700 hover:border-purple-500 transition-colors"
-                    >
-                      <div className="flex items-center gap-3">
-                        <FileText className="text-purple-400" size={20} />
-                        <span className="text-white font-medium">{subject}</span>
-                      </div>
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="px-5 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-semibold flex items-center gap-2"
-                      >
-                        <Download size={16} />
-                        Download PDF
-                      </motion.button>
-                    </motion.div>
-                  ))}
+                  <div className="text-center text-gray-400 py-8">
+                    <p>Papers will appear here after API integration</p>
+                    <p className="text-sm mt-2">Filters: Department={department}, Semester={semester}, Year={year}, Subject={subject}</p>
+                  </div>
                 </div>
               </div>
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => setSelectedYear(null)}
-                className="w-full py-3 rounded-lg bg-gray-800/50 border border-gray-700 text-gray-300 hover:border-blue-500 font-semibold"
-              >
-                ← Back to Years
-              </motion.button>
             </motion.div>
           )}
         </AnimatePresence>
