@@ -1,24 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, BarChart3, Users, FolderOpen, TrendingUp, FileText } from 'lucide-react';
+import { papersAPI } from '../utils/api';
 
 const MOCK_DATA = {
-  categories: ['PYQs', 'Notes', 'Others'],
   departments: ['Computer Science', 'Artificial Intelligence', 'Mechanical', 'Civil', 'Electrical', 'Electronics'],
   semesters: [1, 2, 3, 4, 5, 6, 7, 8],
   years: [2021, 2022, 2023, 2024],
-  subjects: {
-    2021: ['Data Structures', 'Operating Systems', 'DBMS', 'Computer Networks'],
-    2022: ['Machine Learning', 'Web Development', 'Algorithms', 'Software Engineering'],
-    2023: ['AI Fundamentals', 'Cloud Computing', 'Blockchain', 'IoT'],
-    2024: ['Deep Learning', 'DevOps', 'Cybersecurity', 'Mobile Computing']
-  }
 };
 
 function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
   const [formData, setFormData] = useState({
-    category: '',
     department: '',
     semester: '',
     year: '',
@@ -27,40 +20,85 @@ function AdminDashboard() {
   });
   const [uploading, setUploading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
+  const [stats, setStats] = useState({
+    totalPDFs: 0,
+    totalDownloads: 0,
+    thisMonthUploads: 0,
+    activeStudents: 0,
+    recentUploads: []
+  });
+  const [loadingStats, setLoadingStats] = useState(true);
 
-  const stats = {
-    totalPDFs: 1247,
-    totalDownloads: 45678,
-    thisMonthUploads: 89,
-    activeStudents: 3421
+  useEffect(() => {
+    // Fetch stats when component mounts
+    if (activeTab === 'overview') {
+      fetchStats();
+    }
+  }, [activeTab]);
+
+  const fetchStats = async () => {
+    try {
+      setLoadingStats(true);
+      const response = await papersAPI.getStats();
+      setStats({
+        totalPDFs: response.data.totalPdfs || 0,
+        totalDownloads: response.data.totalDownloads || 0,
+        thisMonthUploads: response.data.thisMonthUploads || 0,
+        activeStudents: 0, // Not available in backend yet
+        recentUploads: response.data.recentUploads || []
+      });
+    } catch (err) {
+      console.error('Error fetching stats:', err);
+    } finally {
+      setLoadingStats(false);
+    }
   };
 
-  const monthlyData = [
-    { month: 'Jan', uploads: 95, downloads: 3200 },
-    { month: 'Feb', uploads: 112, downloads: 3800 },
-    { month: 'Mar', uploads: 98, downloads: 4100 },
-    { month: 'Apr', uploads: 134, downloads: 5200 },
-    { month: 'May', uploads: 156, downloads: 6400 },
-    { month: 'Jun', uploads: 142, downloads: 5800 }
-  ];
+  const handleSubmit = async () => {
+    if (!formData.department || !formData.semester || !formData.year || !formData.subject || !formData.file) {
+      setError('Please fill all fields');
+      return;
+    }
 
-  const handleSubmit = () => {
     setUploading(true);
-    
-    setTimeout(() => {
+    setError('');
+    setSuccess(false);
+
+    try {
+      const uploadFormData = new FormData();
+      uploadFormData.append('pdf', formData.file);
+      uploadFormData.append('subject', formData.subject);
+      uploadFormData.append('department', formData.department);
+      uploadFormData.append('semester', formData.semester);
+      uploadFormData.append('year', formData.year);
+
+      const response = await papersAPI.upload(uploadFormData);
+
+      if (response.data.message) {
+        setSuccess(true);
+        setFormData({
+          department: '',
+          semester: '',
+          year: '',
+          subject: '',
+          file: null
+        });
+        
+        // Reset file input
+        const fileInput = document.getElementById('file-upload');
+        if (fileInput) fileInput.value = '';
+
+        // Refresh stats
+        fetchStats();
+        
+        setTimeout(() => setSuccess(false), 3000);
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Upload failed. Please try again.');
+    } finally {
       setUploading(false);
-      setSuccess(true);
-      setFormData({
-        category: '',
-        department: '',
-        semester: '',
-        year: '',
-        subject: '',
-        file: null
-      });
-      
-      setTimeout(() => setSuccess(false), 3000);
-    }, 2000);
+    }
   };
 
   return (
@@ -178,103 +216,51 @@ function AdminDashboard() {
                 </motion.div>
               </div>
 
-              <div className="grid md:grid-cols-2 gap-6">
+              {loadingStats ? (
+                <div className="text-center text-gray-400 py-12">Loading stats...</div>
+              ) : (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.2 }}
+                  transition={{ delay: 0.4 }}
                   className="bg-gray-800/50 backdrop-blur-xl border border-gray-700 rounded-2xl p-6"
                 >
-                  <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                    <BarChart3 className="text-blue-400" size={24} />
-                    Monthly Uploads
-                  </h3>
+                  <h3 className="text-xl font-bold text-white mb-6">Recent Uploads</h3>
                   <div className="space-y-4">
-                    {monthlyData.map((data, idx) => (
-                      <div key={data.month}>
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-gray-400 text-sm">{data.month}</span>
-                          <span className="text-white font-semibold">{data.uploads}</span>
-                        </div>
-                        <div className="w-full bg-gray-700/50 rounded-full h-2 overflow-hidden">
+                    {stats.recentUploads.length > 0 ? (
+                      stats.recentUploads.map((paper, idx) => {
+                        const uploadDate = new Date(paper.createdAt);
+                        const timeAgo = getTimeAgo(uploadDate);
+                        
+                        return (
                           <motion.div
-                            initial={{ width: 0 }}
-                            animate={{ width: `${(data.uploads / 160) * 100}%` }}
-                            transition={{ delay: idx * 0.1, duration: 0.8 }}
-                            className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"
-                          />
-                        </div>
-                      </div>
-                    ))}
+                            key={paper._id || idx}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.5 + idx * 0.1 }}
+                            className="flex items-center justify-between p-4 rounded-lg bg-gray-900/50 border border-gray-700"
+                          >
+                            <div className="flex items-center gap-4">
+                              <div className="p-2 bg-purple-600/20 rounded-lg">
+                                <FileText className="text-purple-400" size={20} />
+                              </div>
+                              <div>
+                                <p className="text-white font-medium">New PDF uploaded</p>
+                                <p className="text-gray-400 text-sm">
+                                  {paper.subject} - Semester {paper.semester} ({paper.department})
+                                </p>
+                              </div>
+                            </div>
+                            <span className="text-gray-500 text-sm">{timeAgo}</span>
+                          </motion.div>
+                        );
+                      })
+                    ) : (
+                      <div className="text-center text-gray-400 py-8">No recent uploads</div>
+                    )}
                   </div>
                 </motion.div>
-
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.3 }}
-                  className="bg-gray-800/50 backdrop-blur-xl border border-gray-700 rounded-2xl p-6"
-                >
-                  <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                    <TrendingUp className="text-purple-400" size={24} />
-                    Monthly Downloads
-                  </h3>
-                  <div className="space-y-4">
-                    {monthlyData.map((data, idx) => (
-                      <div key={data.month}>
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-gray-400 text-sm">{data.month}</span>
-                          <span className="text-white font-semibold">{data.downloads.toLocaleString()}</span>
-                        </div>
-                        <div className="w-full bg-gray-700/50 rounded-full h-2 overflow-hidden">
-                          <motion.div
-                            initial={{ width: 0 }}
-                            animate={{ width: `${(data.downloads / 6500) * 100}%` }}
-                            transition={{ delay: idx * 0.1, duration: 0.8 }}
-                            className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </motion.div>
-              </div>
-
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.4 }}
-                className="bg-gray-800/50 backdrop-blur-xl border border-gray-700 rounded-2xl p-6"
-              >
-                <h3 className="text-xl font-bold text-white mb-6">Recent Activities</h3>
-                <div className="space-y-4">
-                  {[
-                    { action: 'New PDF uploaded', subject: 'Machine Learning - Semester 6', time: '2 hours ago' },
-                    { action: 'Resource downloaded', subject: 'Data Structures', time: '3 hours ago' },
-                    { action: 'New PDF uploaded', subject: 'Operating Systems - Semester 4', time: '5 hours ago' },
-                    { action: 'Resource downloaded', subject: 'Web Development', time: '6 hours ago' }
-                  ].map((activity, idx) => (
-                    <motion.div
-                      key={idx}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.5 + idx * 0.1 }}
-                      className="flex items-center justify-between p-4 rounded-lg bg-gray-900/50 border border-gray-700"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="p-2 bg-purple-600/20 rounded-lg">
-                          <FileText className="text-purple-400" size={20} />
-                        </div>
-                        <div>
-                          <p className="text-white font-medium">{activity.action}</p>
-                          <p className="text-gray-400 text-sm">{activity.subject}</p>
-                        </div>
-                      </div>
-                      <span className="text-gray-500 text-sm">{activity.time}</span>
-                    </motion.div>
-                  ))}
-                </div>
-              </motion.div>
+              )}
             </motion.div>
           ) : (
             <motion.div
@@ -290,19 +276,15 @@ function AdminDashboard() {
                 className="bg-gray-800/50 backdrop-blur-xl border border-gray-700 rounded-2xl p-8"
               >
                 <div className="space-y-6">
-                  <div>
-                    <label className="block text-gray-300 mb-3 font-semibold">Category</label>
-                    <select
-                      value={formData.category}
-                      onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                      className="w-full px-4 py-3 rounded-lg bg-gray-900/50 border border-gray-700 text-white focus:border-purple-500 focus:outline-none"
+                  {error && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="p-4 rounded-lg bg-red-500/20 border border-red-500 text-red-300 text-center"
                     >
-                      <option value="">Select Category</option>
-                      {MOCK_DATA.categories.map((cat) => (
-                        <option key={cat} value={cat}>{cat}</option>
-                      ))}
-                    </select>
-                  </div>
+                      {error}
+                    </motion.div>
+                  )}
 
                   <div>
                     <label className="block text-gray-300 mb-3 font-semibold">Department</label>
@@ -350,29 +332,13 @@ function AdminDashboard() {
 
                   <div>
                     <label className="block text-gray-300 mb-3 font-semibold">Subject</label>
-                    <select
+                    <input
+                      type="text"
                       value={formData.subject}
                       onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                      className="w-full px-4 py-3 rounded-lg bg-gray-900/50 border border-gray-700 text-white focus:border-purple-500 focus:outline-none"
-                    >
-                      <option value="">Select Subject</option>
-                      {formData.year && MOCK_DATA.subjects[formData.year] ? (
-                        MOCK_DATA.subjects[formData.year].map((subject) => (
-                          <option key={subject} value={subject}>{subject}</option>
-                        ))
-                      ) : (
-                        <>
-                          <option value="Data Structures">Data Structures</option>
-                          <option value="Operating Systems">Operating Systems</option>
-                          <option value="DBMS">DBMS</option>
-                          <option value="Computer Networks">Computer Networks</option>
-                          <option value="Machine Learning">Machine Learning</option>
-                          <option value="Web Development">Web Development</option>
-                          <option value="Algorithms">Algorithms</option>
-                          <option value="Software Engineering">Software Engineering</option>
-                        </>
-                      )}
-                    </select>
+                      placeholder="Enter subject name"
+                      className="w-full px-4 py-3 rounded-lg bg-gray-900/50 border border-gray-700 text-white placeholder-gray-400 focus:border-purple-500 focus:outline-none"
+                    />
                   </div>
 
                   <div>
@@ -401,8 +367,8 @@ function AdminDashboard() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={handleSubmit}
-                    disabled={uploading || !formData.category || !formData.department || !formData.semester || !formData.year || !formData.subject || !formData.file}
-                    className="w-full py-4 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold text-lg disabled:opacity-50"
+                    disabled={uploading || !formData.department || !formData.semester || !formData.year || !formData.subject || !formData.file}
+                    className="w-full py-4 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold text-lg disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {uploading ? 'Uploading...' : 'Upload Resource'}
                   </motion.button>
@@ -424,6 +390,19 @@ function AdminDashboard() {
       </div>
     </div>
   );
+}
+
+// Helper function to get time ago
+function getTimeAgo(date) {
+  const seconds = Math.floor((new Date() - date) / 1000);
+  
+  if (seconds < 60) return 'just now';
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+  const days = Math.floor(hours / 24);
+  return `${days} day${days > 1 ? 's' : ''} ago`;
 }
 
 export default AdminDashboard;

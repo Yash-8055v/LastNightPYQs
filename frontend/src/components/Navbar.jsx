@@ -1,30 +1,64 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, LogIn } from 'lucide-react';
+import { X, LogIn, LogOut } from 'lucide-react';
+import { authAPI } from '../utils/api';
 
-const ADMIN_CREDENTIALS = {
-  id: 'admin',
-  password: 'admin123'
-};
-
-function Navbar({ currentPage, setCurrentPage, setShowAdminModal }) {
+function Navbar({ currentPage, setCurrentPage, setShowAdminModal, onLogout }) {
   const [showModal, setShowModal] = useState(false);
-  const [credentials, setCredentials] = useState({ id: '', password: '' });
+  const [credentials, setCredentials] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    // Check if user is authenticated
+    const token = localStorage.getItem('token');
+    setIsAuthenticated(!!token);
+  }, []);
 
   const handleAdminClick = () => {
-    setShowModal(true);
-    setError('');
+    if (isAuthenticated) {
+      setCurrentPage('admin');
+    } else {
+      setShowModal(true);
+      setError('');
+    }
   };
 
-  const handleLogin = () => {
-    if (credentials.id === ADMIN_CREDENTIALS.id && credentials.password === ADMIN_CREDENTIALS.password) {
-      setShowModal(false);
-      setCurrentPage('admin');
-      setCredentials({ id: '', password: '' });
-      setError('');
-    } else {
-      setError('Invalid credentials');
+  const handleLogin = async () => {
+    setError('');
+    setLoading(true);
+
+    try {
+      const response = await authAPI.login(credentials);
+      
+      if (response.data.token) {
+        localStorage.setItem('token', response.data.token);
+        setIsAuthenticated(true);
+        setShowModal(false);
+        setCurrentPage('admin');
+        setCredentials({ username: '', password: '' });
+        // Trigger page reload to sync authentication state across components
+        window.location.reload();
+      }
+    } catch (err) {
+      if (err.isConnectionError) {
+        setError('Backend server is not running. Please start the backend server on port 3000.');
+      } else {
+        setError(err.response?.data?.message || 'Invalid credentials');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setIsAuthenticated(false);
+    setCurrentPage('home');
+    // Call the onLogout callback if provided
+    if (onLogout) {
+      onLogout();
     }
   };
 
@@ -70,14 +104,40 @@ function Navbar({ currentPage, setCurrentPage, setShowAdminModal }) {
               >
                 About
               </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.05, y: -2 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={handleAdminClick}
-                className="px-6 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold"
-              >
-                Admin
-              </motion.button>
+              {isAuthenticated ? (
+                <>
+                  <motion.button
+                    whileHover={{ scale: 1.05, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setCurrentPage('admin')}
+                    className={`px-6 py-2 rounded-lg border transition-colors ${
+                      currentPage === 'admin'
+                        ? 'bg-purple-600 border-purple-500 text-white'
+                        : 'bg-gray-800/50 border-gray-700 text-gray-200 hover:border-purple-500'
+                    }`}
+                  >
+                    Admin
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.05, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={handleLogout}
+                    className="px-6 py-2 rounded-lg bg-red-600/80 hover:bg-red-600 text-white font-semibold flex items-center gap-2"
+                  >
+                    <LogOut size={18} />
+                    Logout
+                  </motion.button>
+                </>
+              ) : (
+                <motion.button
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={handleAdminClick}
+                  className="px-6 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold"
+                >
+                  Admin
+                </motion.button>
+              )}
             </div>
           </div>
         </div>
@@ -114,13 +174,13 @@ function Navbar({ currentPage, setCurrentPage, setShowAdminModal }) {
               
               <div className="space-y-4">
                 <div>
-                  <label className="block text-gray-300 mb-2">Admin ID</label>
+                  <label className="block text-gray-300 mb-2">Username</label>
                   <input
                     type="text"
-                    value={credentials.id}
-                    onChange={(e) => setCredentials({ ...credentials, id: e.target.value })}
+                    value={credentials.username}
+                    onChange={(e) => setCredentials({ ...credentials, username: e.target.value })}
                     className="w-full px-4 py-3 rounded-lg bg-gray-900/50 border border-gray-700 text-white focus:border-purple-500 focus:outline-none"
-                    placeholder="Enter admin ID"
+                    placeholder="Enter username"
                   />
                 </div>
                 
@@ -144,9 +204,10 @@ function Navbar({ currentPage, setCurrentPage, setShowAdminModal }) {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={handleLogin}
-                  className="w-full py-3 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold"
+                  disabled={loading}
+                  className="w-full py-3 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold disabled:opacity-50"
                 >
-                  Login
+                  {loading ? 'Logging in...' : 'Login'}
                 </motion.button>
               </div>
             </motion.div>
