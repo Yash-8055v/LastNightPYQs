@@ -52,7 +52,23 @@ export const authAPI = {
 export const papersAPI = {
   getAll: () => api.get('/papers'),
   getById: (id) => api.get(`/papers/${id}`),
+  getFilteredPapers: (filters) => {
+    // Build query string from filters object
+    const params = new URLSearchParams();
+    if (filters.department) params.append('department', filters.department);
+    if (filters.semester) params.append('semester', filters.semester);
+    if (filters.year) params.append('year', filters.year);
+    if (filters.subject) params.append('subject', filters.subject);
+    
+    return api.get(`/papers?${params.toString()}`);
+  },
   getStats: () => api.get('/papers/stats'),
+  download: (id, subjectName, year) => {
+    // Download through backend proxy
+    return api.get(`/papers/download/${id}`, {
+      responseType: 'blob', // Important for binary data
+    });
+  },
   upload: (formData) => {
     // For file uploads, we need to use multipart/form-data
     return api.post('/papers/upload', formData, {

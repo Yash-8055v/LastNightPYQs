@@ -86,3 +86,5 @@ export const isSubjectInSemester = (subject, semester) => {
   return SUBJECTS_BY_SEMESTER[semester]?.includes(subject) || false;
 };
 
+
+

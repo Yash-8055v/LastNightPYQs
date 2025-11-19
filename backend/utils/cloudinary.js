@@ -13,10 +13,18 @@ const uploadOnCloudinary = async (localFilePath) => {
   try {
     if (!localFilePath) return null;
 
+    //! Check if file is PDF
+    const isPDF = localFilePath.toLowerCase().endsWith('.pdf');
+    
     //! upload the file on Cloudinary
-
+    // Use 'raw' resource_type for PDFs to ensure proper handling
+    // Important: Make sure "Show original" and "Raw delivery" are enabled in Cloudinary settings
     const response = await cloudinary.uploader.upload(localFilePath, {
-      resource_type: 'auto'
+      resource_type: isPDF ? 'raw' : 'auto',
+      use_filename: true,
+      unique_filename: true,
+      // Ensure PDFs are stored as raw files
+      format: isPDF ? undefined : undefined, // Let Cloudinary detect format
     })
 
     //! File has been uploaded successfully
