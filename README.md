@@ -79,6 +79,7 @@ LastNightPYQs/
 ✨ Notes upload & sharing  
 ✨ Search by subject or year  
 ✨ User login and dashboard
+✨ Syllabus upload & sharing
 
 ---
 
