@@ -52,13 +52,15 @@ export const authAPI = {
 export const papersAPI = {
   getAll: () => api.get('/papers'),
   getById: (id) => api.get(`/papers/${id}`),
-  getFilteredPapers: (filters) => {
+  getFilteredPapers: (filters, page = 1, limit = 12) => {
     // Build query string from filters object
     const params = new URLSearchParams();
     if (filters.department) params.append('department', filters.department);
     if (filters.semester) params.append('semester', filters.semester);
     if (filters.year) params.append('year', filters.year);
     if (filters.subject) params.append('subject', filters.subject);
+    params.append('page', page);
+    params.append('limit', limit);
     
     return api.get(`/papers?${params.toString()}`);
   },

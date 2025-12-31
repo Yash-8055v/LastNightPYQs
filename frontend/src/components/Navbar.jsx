@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, LogIn, LogOut } from 'lucide-react';
+import { X, LogIn, LogOut, Menu } from 'lucide-react';
 import { authAPI } from '../utils/api';
 
 function Navbar({ currentPage, setCurrentPage, setShowAdminModal, onLogout }) {
@@ -9,6 +9,7 @@ function Navbar({ currentPage, setCurrentPage, setShowAdminModal, onLogout }) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     // Check if user is authenticated
@@ -16,14 +17,6 @@ function Navbar({ currentPage, setCurrentPage, setShowAdminModal, onLogout }) {
     setIsAuthenticated(!!token);
   }, []);
 
-  const handleAdminClick = () => {
-    if (isAuthenticated) {
-      setCurrentPage('admin');
-    } else {
-      setShowModal(true);
-      setError('');
-    }
-  };
 
   const handleLogin = async () => {
     setError('');
@@ -56,9 +49,25 @@ function Navbar({ currentPage, setCurrentPage, setShowAdminModal, onLogout }) {
     localStorage.removeItem('token');
     setIsAuthenticated(false);
     setCurrentPage('home');
+    setIsMobileMenuOpen(false);
     // Call the onLogout callback if provided
     if (onLogout) {
       onLogout();
+    }
+  };
+
+  const handleNavClick = (page) => {
+    setCurrentPage(page);
+    setIsMobileMenuOpen(false);
+  };
+
+  const handleAdminClick = () => {
+    setIsMobileMenuOpen(false);
+    if (isAuthenticated) {
+      setCurrentPage('admin');
+    } else {
+      setShowModal(true);
+      setError('');
     }
   };
 
@@ -69,21 +78,22 @@ function Navbar({ currentPage, setCurrentPage, setShowAdminModal, onLogout }) {
         animate={{ y: 0 }}
         className="fixed top-0 left-0 right-0 z-50 bg-gray-900/80 backdrop-blur-lg border-b border-gray-700/50"
       >
-        <div className="max-w-7xl mx-auto px-6 py-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex items-center justify-between">
             <motion.h1
               whileHover={{ scale: 1.05 }}
-              onClick={() => setCurrentPage('home')}
-              className="text-3xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent cursor-pointer"
+              onClick={() => handleNavClick('home')}
+              className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent cursor-pointer"
             >
               LastNight PYQs
             </motion.h1>
             
-            <div className="flex gap-4">
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex gap-4">
               <motion.button
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => setCurrentPage('home')}
+                onClick={() => handleNavClick('home')}
                 className={`px-6 py-2 rounded-lg border transition-colors ${
                   currentPage === 'home'
                     ? 'bg-purple-600 border-purple-500 text-white'
@@ -95,7 +105,7 @@ function Navbar({ currentPage, setCurrentPage, setShowAdminModal, onLogout }) {
               <motion.button
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => setCurrentPage('about')}
+                onClick={() => handleNavClick('about')}
                 className={`px-6 py-2 rounded-lg border transition-colors ${
                   currentPage === 'about'
                     ? 'bg-purple-600 border-purple-500 text-white'
@@ -109,7 +119,7 @@ function Navbar({ currentPage, setCurrentPage, setShowAdminModal, onLogout }) {
                   <motion.button
                     whileHover={{ scale: 1.05, y: -2 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={() => setCurrentPage('admin')}
+                    onClick={() => handleNavClick('admin')}
                     className={`px-6 py-2 rounded-lg border transition-colors ${
                       currentPage === 'admin'
                         ? 'bg-purple-600 border-purple-500 text-white'
@@ -139,7 +149,85 @@ function Navbar({ currentPage, setCurrentPage, setShowAdminModal, onLogout }) {
                 </motion.button>
               )}
             </div>
+
+            {/* Mobile Hamburger Button */}
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="md:hidden p-2 rounded-lg bg-gray-800/50 border border-gray-700 text-gray-200 hover:border-purple-500 hover:bg-gray-800 transition-colors"
+              aria-label="Toggle menu"
+            >
+              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </motion.button>
           </div>
+
+          {/* Mobile Menu */}
+          <AnimatePresence>
+            {isMobileMenuOpen && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="md:hidden mt-4 pb-2 border-t border-gray-700/50"
+              >
+                <div className="flex flex-col gap-2 pt-4">
+                  <motion.button
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => handleNavClick('home')}
+                    className={`w-full px-4 py-3 rounded-lg border text-left transition-colors ${
+                      currentPage === 'home'
+                        ? 'bg-purple-600 border-purple-500 text-white'
+                        : 'bg-gray-800/50 border-gray-700 text-gray-200 hover:border-purple-500'
+                    }`}
+                  >
+                    Home
+                  </motion.button>
+                  <motion.button
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => handleNavClick('about')}
+                    className={`w-full px-4 py-3 rounded-lg border text-left transition-colors ${
+                      currentPage === 'about'
+                        ? 'bg-purple-600 border-purple-500 text-white'
+                        : 'bg-gray-800/50 border-gray-700 text-gray-200 hover:border-purple-500'
+                    }`}
+                  >
+                    About
+                  </motion.button>
+                  {isAuthenticated ? (
+                    <>
+                      <motion.button
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => handleNavClick('admin')}
+                        className={`w-full px-4 py-3 rounded-lg border text-left transition-colors ${
+                          currentPage === 'admin'
+                            ? 'bg-purple-600 border-purple-500 text-white'
+                            : 'bg-gray-800/50 border-gray-700 text-gray-200 hover:border-purple-500'
+                        }`}
+                      >
+                        Admin
+                      </motion.button>
+                      <motion.button
+                        whileTap={{ scale: 0.98 }}
+                        onClick={handleLogout}
+                        className="w-full px-4 py-3 rounded-lg bg-red-600/80 hover:bg-red-600 text-white font-semibold flex items-center gap-2"
+                      >
+                        <LogOut size={18} />
+                        Logout
+                      </motion.button>
+                    </>
+                  ) : (
+                    <motion.button
+                      whileTap={{ scale: 0.98 }}
+                      onClick={handleAdminClick}
+                      className="w-full px-4 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold text-left"
+                    >
+                      Admin
+                    </motion.button>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </motion.nav>
 
@@ -158,7 +246,7 @@ function Navbar({ currentPage, setCurrentPage, setShowAdminModal, onLogout }) {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-gray-800/90 backdrop-blur-xl border border-gray-700 rounded-2xl p-8 w-96 relative"
+              className="bg-gray-800/90 backdrop-blur-xl border border-gray-700 rounded-2xl p-6 sm:p-8 w-[90vw] sm:w-96 mx-4 relative"
             >
               <button
                 onClick={() => setShowModal(false)}

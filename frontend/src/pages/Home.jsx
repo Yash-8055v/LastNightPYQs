@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FileText, Download, Loader2, AlertCircle, Calendar, BookOpen, GraduationCap } from 'lucide-react';
-import { getSubjectsBySemester } from '../utils/subjectsData';
+import { FileText, Download, Loader2, AlertCircle, Calendar, BookOpen, GraduationCap, Eye, X } from 'lucide-react';
+import { getSubjectsByDepartmentAndSemester } from '../utils/departmentSubjects';
 import { papersAPI } from '../utils/api';
 
 const MOCK_DATA = {
@@ -19,12 +19,17 @@ function Home() {
   const [papers, setPapers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [previewPaper, setPreviewPaper] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalPapers, setTotalPapers] = useState(0);
 
-  const handleSearch = async () => {
+  const handleSearch = async (pageNum = 1) => {
     if (department && semester && year && subject) {
       setLoading(true);
       setError('');
       setShowResults(true);
+      setCurrentPage(pageNum);
       
       try {
         const response = await papersAPI.getFilteredPapers({
@@ -32,11 +37,13 @@ function Home() {
           semester,
           year,
           subject
-        });
+        }, pageNum, 12);
         
-        // Handle both new format (with papers array) and old format (direct array)
-        const papersData = response.data.papers || (Array.isArray(response.data) ? response.data : []);
+        // Handle response with pagination
+        const papersData = response.data.papers || [];
         setPapers(papersData);
+        setTotalPages(response.data.totalPages || 1);
+        setTotalPapers(response.data.totalCount || 0);
         
         if (papersData.length === 0) {
           setError('No papers found matching your criteria.');
@@ -49,6 +56,8 @@ function Home() {
           : err.response?.data?.message || 'Failed to fetch papers. Please try again.'
         );
         setPapers([]);
+        setTotalPages(1);
+        setTotalPapers(0);
       } finally {
         setLoading(false);
       }
@@ -105,6 +114,17 @@ function Home() {
     setYear('');
     setSubject('');
     setShowResults(false);
+    setCurrentPage(1);
+    setTotalPages(1);
+    setTotalPapers(0);
+  };
+
+  const handlePreview = (paper) => {
+    setPreviewPaper(paper);
+  };
+
+  const closePreview = () => {
+    setPreviewPaper(null);
   };
 
   return (
@@ -153,6 +173,7 @@ function Home() {
                       setSemester(e.target.value);
                       setSubject(''); // Reset subject when semester changes
                     }}
+                    disabled={!department}
                     className="w-full px-4 py-3 rounded-lg bg-gray-900/50 border border-gray-700 text-white focus:border-purple-500 focus:outline-none cursor-pointer"
                   >
                     <option value="">Select Semester</option>
@@ -182,18 +203,20 @@ function Home() {
                 <select
                   value={subject}
                   onChange={(e) => setSubject(e.target.value)}
-                  disabled={!semester}
+                  disabled={!semester || !department}
                   className="w-full px-4 py-3 rounded-lg bg-gray-900/50 border border-gray-700 text-white focus:border-purple-500 focus:outline-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <option value="">
-                    {semester ? 'Select Subject' : 'Select Semester First'}
+                    {!department ? 'Select Department First' : !semester ? 'Select Semester First' : 'Select Subject'}
                   </option>
-                  {semester && getSubjectsBySemester(parseInt(semester)).map((subj) => (
+                  {semester && department && getSubjectsByDepartmentAndSemester(department, parseInt(semester)).map((subj) => (
                     <option key={subj} value={subj}>{subj}</option>
                   ))}
                 </select>
-                {!semester && (
-                  <p className="text-gray-500 text-sm mt-1">Please select semester first</p>
+                {(!department || !semester) && (
+                  <p className="text-gray-500 text-sm mt-1">
+                    {!department ? 'Please select department first' : 'Please select semester first'}
+                  </p>
                 )}
               </div>
 
@@ -234,7 +257,7 @@ function Home() {
                       </span>
                     </p>
                     <h2 className="text-2xl font-bold text-white">
-                      Available Papers {papers.length > 0 && `(${papers.length})`}
+                      Available Papers {totalPapers > 0 && `(${totalPapers})`}
                     </h2>
                   </div>
                   <motion.button
@@ -310,17 +333,84 @@ function Home() {
                           )}
                         </div>
 
-                        <motion.button
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                          onClick={() => handleDownload(paper._id, paper.subject, paper.year)}
-                          className="w-full py-2.5 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-semibold flex items-center justify-center gap-2 transition-all"
-                        >
-                          <Download size={18} />
-                          Download PDF
-                        </motion.button>
+                        <div className="flex gap-2">
+                          <motion.button
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => handlePreview(paper)}
+                            className="flex-1 py-2.5 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold flex items-center justify-center gap-2 transition-all"
+                          >
+                            <Eye size={18} />
+                            Preview
+                          </motion.button>
+                          <motion.button
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => handleDownload(paper._id, paper.subject, paper.year)}
+                            className="flex-1 py-2.5 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-semibold flex items-center justify-center gap-2 transition-all"
+                          >
+                            <Download size={18} />
+                            Download
+                          </motion.button>
+                        </div>
                       </motion.div>
                     ))}
+                  </div>
+                )}
+
+                {/* Pagination */}
+                {!loading && papers.length > 0 && totalPages > 1 && (
+                  <div className="flex items-center justify-between mt-6 pt-6 border-t border-gray-700">
+                    <div className="text-gray-400 text-sm">
+                      Page {currentPage} of {totalPages}
+                    </div>
+                    <div className="flex gap-2">
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => handleSearch(currentPage - 1)}
+                        disabled={currentPage === 1}
+                        className="px-4 py-2 rounded-lg bg-gray-800/50 border border-gray-700 text-white disabled:opacity-50 disabled:cursor-not-allowed hover:border-purple-500"
+                      >
+                        Previous
+                      </motion.button>
+                      {[...Array(Math.min(5, totalPages))].map((_, idx) => {
+                        let pageNum;
+                        if (totalPages <= 5) {
+                          pageNum = idx + 1;
+                        } else if (currentPage <= 3) {
+                          pageNum = idx + 1;
+                        } else if (currentPage >= totalPages - 2) {
+                          pageNum = totalPages - 4 + idx;
+                        } else {
+                          pageNum = currentPage - 2 + idx;
+                        }
+                        return (
+                          <motion.button
+                            key={pageNum}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => handleSearch(pageNum)}
+                            className={`px-4 py-2 rounded-lg border ${
+                              currentPage === pageNum
+                                ? 'bg-purple-600 border-purple-500 text-white'
+                                : 'bg-gray-800/50 border-gray-700 text-white hover:border-purple-500'
+                            }`}
+                          >
+                            {pageNum}
+                          </motion.button>
+                        );
+                      })}
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => handleSearch(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                        className="px-4 py-2 rounded-lg bg-gray-800/50 border border-gray-700 text-white disabled:opacity-50 disabled:cursor-not-allowed hover:border-purple-500"
+                      >
+                        Next
+                      </motion.button>
+                    </div>
                   </div>
                 )}
 
@@ -335,6 +425,63 @@ function Home() {
                   </div>
                 )}
               </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* PDF Preview Modal */}
+        <AnimatePresence>
+          {previewPaper && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+              onClick={closePreview}
+            >
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                onClick={(e) => e.stopPropagation()}
+                className="bg-gray-900 rounded-2xl w-full max-w-6xl h-[90vh] flex flex-col"
+              >
+                {/* Modal Header */}
+                <div className="flex items-center justify-between p-4 border-b border-gray-700">
+                  <div>
+                    <h3 className="text-white font-semibold text-lg">{previewPaper.subject}</h3>
+                    <p className="text-gray-400 text-sm">{previewPaper.department} • Semester {previewPaper.semester} • {previewPaper.year}</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => handleDownload(previewPaper._id, previewPaper.subject, previewPaper.year)}
+                      className="px-4 py-2 rounded-lg bg-green-600 hover:bg-green-500 text-white font-semibold flex items-center gap-2"
+                    >
+                      <Download size={18} />
+                      Download
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={closePreview}
+                      className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-white"
+                    >
+                      <X size={20} />
+                    </motion.button>
+                  </div>
+                </div>
+
+                {/* PDF Viewer */}
+                <div className="flex-1 overflow-hidden">
+                  <iframe
+                    src={`${previewPaper.pdfUrl}#toolbar=1&navpanes=1&scrollbar=1`}
+                    className="w-full h-full border-0"
+                    title="PDF Preview"
+                  />
+                </div>
+              </motion.div>
             </motion.div>
           )}
         </AnimatePresence>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, BarChart3, Users, FolderOpen, TrendingUp, FileText } from 'lucide-react';
 import { papersAPI } from '../utils/api';
-import { getSubjectsBySemester } from '../utils/subjectsData';
+import { getSubjectsByDepartmentAndSemester } from '../utils/departmentSubjects';
 
 const MOCK_DATA = {
   departments: ['Computer Science', 'Artificial Intelligence', 'Mechanical', 'Civil', 'Electrical', 'Electronics'],
@@ -291,7 +291,10 @@ function AdminDashboard() {
                     <label className="block text-gray-300 mb-3 font-semibold">Department</label>
                     <select
                       value={formData.department}
-                      onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+                      onChange={(e) => {
+                        // Reset semester and subject when department changes
+                        setFormData({ ...formData, department: e.target.value, semester: '', subject: '' });
+                      }}
                       className="w-full px-4 py-3 rounded-lg bg-gray-900/50 border border-gray-700 text-white focus:border-purple-500 focus:outline-none"
                     >
                       <option value="">Select Department</option>
@@ -310,7 +313,8 @@ function AdminDashboard() {
                           // Reset subject when semester changes
                           setFormData({ ...formData, semester: e.target.value, subject: '' });
                         }}
-                        className="w-full px-4 py-3 rounded-lg bg-gray-900/50 border border-gray-700 text-white focus:border-purple-500 focus:outline-none"
+                        disabled={!formData.department}
+                        className="w-full px-4 py-3 rounded-lg bg-gray-900/50 border border-gray-700 text-white focus:border-purple-500 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <option value="">Select</option>
                         {MOCK_DATA.semesters.map((sem) => (
@@ -339,18 +343,20 @@ function AdminDashboard() {
                     <select
                       value={formData.subject}
                       onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                      disabled={!formData.semester}
+                      disabled={!formData.semester || !formData.department}
                       className="w-full px-4 py-3 rounded-lg bg-gray-900/50 border border-gray-700 text-white focus:border-purple-500 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <option value="">
-                        {formData.semester ? 'Select Subject' : 'Select Semester First'}
+                        {!formData.department ? 'Select Department First' : !formData.semester ? 'Select Semester First' : 'Select Subject'}
                       </option>
-                      {formData.semester && getSubjectsBySemester(parseInt(formData.semester)).map((subject) => (
+                      {formData.semester && formData.department && getSubjectsByDepartmentAndSemester(formData.department, parseInt(formData.semester)).map((subject) => (
                         <option key={subject} value={subject}>{subject}</option>
                       ))}
                     </select>
-                    {!formData.semester && (
-                      <p className="text-gray-500 text-sm mt-1">Please select semester first</p>
+                    {(!formData.department || !formData.semester) && (
+                      <p className="text-gray-500 text-sm mt-1">
+                        {!formData.department ? 'Please select department first' : 'Please select semester first'}
+                      </p>
                     )}
                   </div>
 

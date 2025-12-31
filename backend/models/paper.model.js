@@ -30,6 +30,10 @@ const paperSchema = new mongoose.Schema({
     type: String,
     default: "Admin"
   },
+  downloadCount: {
+    type: Number,
+    default: 0
+  },
 
 }, {timestamps: true})
 

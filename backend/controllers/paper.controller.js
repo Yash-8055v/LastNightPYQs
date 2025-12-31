@@ -9,8 +9,8 @@ import http from 'http';
 
 export const getPapers = async (req, res) => {
   try {
-    // Extract query parameters for filtering
-    const { department, semester, year, subject } = req.query;
+    // Extract query parameters for filtering and pagination
+    const { department, semester, year, subject, page = 1, limit = 12 } = req.query;
     
     // Build filter object dynamically
     const filter = {};
@@ -32,12 +32,27 @@ export const getPapers = async (req, res) => {
       filter.subject = { $regex: subject, $options: 'i' };
     }
     
-    // Find papers with filters and sort by creation date (newest first)
-    const papers = await Paper.find(filter).sort({ createdAt: -1 });
+    // Pagination
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+    const skip = (pageNum - 1) * limitNum;
+    
+    // Get total count for pagination
+    const totalCount = await Paper.countDocuments(filter);
+    const totalPages = Math.ceil(totalCount / limitNum);
+    
+    // Find papers with filters, sort by creation date (newest first), and apply pagination
+    const papers = await Paper.find(filter)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limitNum);
     
     res.status(200).json({
       success: true,
       count: papers.length,
+      totalCount,
+      totalPages,
+      currentPage: pageNum,
       papers
     });
   } catch (error) {
@@ -48,12 +63,33 @@ export const getPapers = async (req, res) => {
 export const getStats = async (req, res) => {
   try {
     const totalPdfs = await Paper.countDocuments();
+    
+    // Calculate total downloads from all papers
+    const totalDownloadsResult = await Paper.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalDownloads: { $sum: "$downloadCount" }
+        }
+      }
+    ]);
+    const totalDownloads = totalDownloadsResult[0]?.totalDownloads || 0;
+    
+    // Get papers uploaded this month
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+    
+    const thisMonthUploads = await Paper.countDocuments({
+      createdAt: { $gte: startOfMonth }
+    });
+    
     const latest = await Paper.find().sort({ createdAt: -1 }).limit(5);
 
     res.json({
       totalPdfs,
-      totalDownloads: 0, // future feature
-      thisMonthUploads: latest.length,
+      totalDownloads,
+      thisMonthUploads,
       recentUploads: latest,
     });
   } catch (err) {
@@ -259,6 +295,10 @@ export const downloadPaper = async (req, res) => {
     res.setHeader('Content-Length', pdfBuffer.length);
     
     console.log("Sending PDF to client, size:", pdfBuffer.length);
+    
+    // Increment download count (do this after sending to not block response)
+    paper.downloadCount = (paper.downloadCount || 0) + 1;
+    paper.save().catch(err => console.error("Error updating download count:", err));
     
     // Send the PDF
     res.send(pdfBuffer);
