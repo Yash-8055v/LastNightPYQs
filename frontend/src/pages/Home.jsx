@@ -5,9 +5,9 @@ import { getSubjectsByDepartmentAndSemester } from '../utils/departmentSubjects'
 import { papersAPI } from '../utils/api';
 
 const MOCK_DATA = {
-  departments: ['Computer Engineering ', 'Artificial Intelligence and Data Science', 'Mechanical', 'Civil Engineering', 'Information Technology', 'Electronics and Telecommunication Engineering','Computer Science and Engineering (Data Science) '],
+  departments: ['Computer Engineering', 'Computer Science and Engineering (Data Science)', 'Information Technology', 'Artificial Intelligence and Data Science', 'Electronics and Telecommunication Engineering', 'Civil Engineering', 'Mechanical Engineering'],
   semesters: [1, 2, 3, 4, 5, 6, 7, 8],
-  years: [2021, 2022, 2023, 2024],
+  years: [2021, 2022, 2023, 2024, 2025],
 };
 
 function Home() {

@@ -2,46 +2,45 @@
 // Each department has different subjects for each semester
 
 export const DEPARTMENT_SUBJECTS = {
-  'Computer Science': {
+  'Computer Engineering': {
     1: [
-      'Engineering Mathematics I',
-      'Engineering Physics',
-      'Engineering Chemistry',
-      'Programming Fundamentals',
-      'Engineering Graphics',
-      'Communication Skills'
+      'Applied Mathematics 1',
+      'Appliead Chemistry',
+      'Appliead Physics',
+      'Enginnering Mechanics',
+      'Basic Electrical & Electronics Enginnering',
+      'Professional and Communication Ethics'
     ],
     2: [
-      'Engineering Mathematics II',
-      'Data Structures',
-      'Object Oriented Programming',
-      'Digital Electronics',
-      'Engineering Mechanics',
-      'Environmental Studies'
+      'Applied Mathematics 2',
+      'Elective Physics',
+      'Elective Chemistry',
+      'Engineering Graphics',
+      'Program Core Course',
     ],
     3: [
-      'Discrete Mathematics',
-      'Database Management Systems',
-      'Computer Networks',
-      'Operating Systems',
-      'Web Technologies',
-      'Probability and Statistics'
+      'Mathematics for Computer Engineering',
+      'Discrete Structures and Graph Theory',
+      'Analysis of Algorithm',
+      'Computer organization & Architecture',
+      'Open Elective',
+      
     ],
     4: [
-      'Computer Organization and Architecture',
-      'Theory of Computation',
-      'Software Engineering',
-      'Microprocessors',
-      'Design and Analysis of Algorithms',
-      'Computer Graphics'
+      'Computational Theory',
+      'Database Management System',
+      'Operating System',
+      'Multidisciplinary minor',
+      'Open Elective',
+      
     ],
     5: [
-      'Machine Learning',
-      'Compiler Design',
-      'Mobile Computing',
-      'Information Security',
-      'Cloud Computing',
-      'Artificial Intelligence'
+      'Theoretical Computer Science',
+      'Software Engineering',
+      'Computer Network',
+      'Data Warehousing & Mining',
+      'Department Level Optional Course- 1',
+      
     ],
     6: [
       'Deep Learning',
@@ -67,38 +66,37 @@ export const DEPARTMENT_SUBJECTS = {
       'Ethics and Professional Practice'
     ]
   },
-  'Artificial Intelligence': {
+  'Computer Science and Engineering (Data Science)': {
     1: [
-      'Engineering Mathematics I',
-      'Engineering Physics',
-      'Engineering Chemistry',
-      'Programming Fundamentals',
-      'Engineering Graphics',
-      'Communication Skills'
+      'Applied Mathematics 1',
+      'Appliead Chemistry',
+      'Appliead Physics',
+      'Enginnering Mechanics',
+      'Basic Electrical & Electronics Enginnering',
+      'Professional and Communication Ethics'
     ],
     2: [
-      'Engineering Mathematics II',
-      'Data Structures',
-      'Python Programming',
-      'Digital Electronics',
-      'Engineering Mechanics',
-      'Environmental Studies'
+      'Applied Mathematics 2',
+      'Elective Physics',
+      'Elective Chemistry',
+      'Engineering Graphics',
+      'Program Core Course',
     ],
     3: [
-      'Linear Algebra',
-      'Database Management Systems',
-      'Probability and Statistics',
-      'Operating Systems',
-      'Introduction to AI',
-      'Data Mining'
+      'Mathematics for Computer Engineering',
+      'Discrete Structures and Graph Theory',
+      'Analysis of Algorithm',
+      'Computer organization & Architecture',
+      'Open Elective',
+      
     ],
     4: [
-      'Computer Organization',
-      'Machine Learning Fundamentals',
-      'Software Engineering',
-      'Neural Networks Basics',
-      'Design and Analysis of Algorithms',
-      'Computer Vision Basics'
+      'Computational Theory',
+      'Database Management System',
+      'Operating System',
+      'Multidisciplinary minor',
+      'Open Elective',
+      
     ],
     5: [
       'Deep Learning',
@@ -132,38 +130,37 @@ export const DEPARTMENT_SUBJECTS = {
       'Ethics and Professional Practice'
     ]
   },
-  'Mechanical': {
+  'Information Technology': {
     1: [
-      'Engineering Mathematics I',
-      'Engineering Physics',
-      'Engineering Chemistry',
-      'Basic Mechanical Engineering',
-      'Engineering Graphics',
-      'Communication Skills'
+      'Applied Mathematics 1',
+      'Appliead Chemistry',
+      'Appliead Physics',
+      'Enginnering Mechanics',
+      'Basic Electrical & Electronics Enginnering',
+      'Professional and Communication Ethics'
     ],
     2: [
-      'Engineering Mathematics II',
-      'Engineering Mechanics',
-      'Workshop Practice',
-      'Materials Science',
-      'Computer Programming',
-      'Environmental Studies'
+      'Applied Mathematics 2',
+      'Elective Physics',
+      'Elective Chemistry',
+      'Engineering Graphics',
+      'Program Core Course',
     ],
     3: [
-      'Thermodynamics',
-      'Mechanics of Solids',
-      'Manufacturing Processes',
-      'Fluid Mechanics',
-      'Machine Drawing',
-      'Electrical Technology'
+      'Applied Mathematics Thinking-I',
+      'Advance Data Structure & Analysis',
+      'Database Management System & Application',
+      'Automata Theory',
+      'Open Elective',
+      
     ],
     4: [
-      'Heat Transfer',
-      'Theory of Machines',
+      'Applied Mathematics Thinking-II',
+      'Operating System',
       'Machine Design',
-      'Production Technology',
-      'Industrial Engineering',
-      'Measurement and Control'
+      'Computer Network & Network Design',
+      'Open Elective',
+      
     ],
     5: [
       'Internal Combustion Engines',
@@ -197,38 +194,37 @@ export const DEPARTMENT_SUBJECTS = {
       'Professional Ethics'
     ]
   },
-  'Civil': {
+  'Artificial Intelligence and Data Science': {
     1: [
-      'Engineering Mathematics I',
-      'Engineering Physics',
-      'Engineering Chemistry',
-      'Basic Civil Engineering',
-      'Engineering Graphics',
-      'Communication Skills'
+      'Applied Mathematics 1',
+      'Appliead Chemistry',
+      'Appliead Physics',
+      'Enginnering Mechanics',
+      'Basic Electrical & Electronics Enginnering',
+      'Professional and Communication Ethics'
     ],
     2: [
-      'Engineering Mathematics II',
-      'Building Materials',
-      'Surveying',
-      'Engineering Mechanics',
-      'Computer Programming',
-      'Environmental Studies'
+      'Applied Mathematics 2',
+      'Elective Physics',
+      'Elective Chemistry',
+      'Engineering Graphics',
+      'Program Core Course',
     ],
     3: [
-      'Strength of Materials',
-      'Fluid Mechanics',
-      'Building Construction',
-      'Structural Analysis I',
-      'Engineering Geology',
-      'Transportation Engineering I'
+      'Mathematics for Computer Engineering',
+      'Discrete Structures and Graph Theory',
+      'Analysis of Algorithm',
+      'Computer organization & Architecture',
+      'Open Elective',
+      
     ],
     4: [
-      'Structural Analysis II',
-      'Design of Concrete Structures',
-      'Hydraulics',
-      'Soil Mechanics',
-      'Highway Engineering',
-      'Environmental Engineering I'
+      'Computational Theory',
+      'Database Management System',
+      'Operating System',
+      'Multidisciplinary minor',
+      'Open Elective',
+      
     ],
     5: [
       'Design of Steel Structures',
@@ -262,38 +258,36 @@ export const DEPARTMENT_SUBJECTS = {
       'Professional Ethics'
     ]
   },
-  'Electrical': {
+  'Electronics and Telecommunication Engineering': {
     1: [
-      'Engineering Mathematics I',
-      'Engineering Physics',
-      'Engineering Chemistry',
-      'Basic Electrical Engineering',
-      'Engineering Graphics',
-      'Communication Skills'
+      'Applied Mathematics 1',
+      'Appliead Chemistry',
+      'Appliead Physics',
+      'Enginnering Mechanics',
+      'Basic Electrical & Electronics Enginnering',
+      'Professional and Communication Ethics'
     ],
     2: [
-      'Engineering Mathematics II',
-      'Electrical Circuits',
-      'Digital Electronics',
-      'Engineering Mechanics',
-      'Computer Programming',
-      'Environmental Studies'
+      'Applied Mathematics 2',
+      'Elective Physics',
+      'Elective Chemistry',
+      'Engineering Graphics',
+      'Program Core Course',
     ],
     3: [
-      'Network Analysis',
-      'Electrical Machines I',
-      'Power Systems I',
-      'Electromagnetic Theory',
-      'Measurement and Instrumentation',
-      'Signals and Systems'
+      'Mathematics for Signal Analysis',
+      'Electronic Devices & Linear Circuits',
+      'Digital System Design',
+      'Network Theory and Control System',
+      'Open Elective',
+      
     ],
     4: [
-      'Electrical Machines II',
-      'Power Systems II',
-      'Control Systems',
-      'Power Electronics',
-      'Microprocessors',
-      'Numerical Methods'
+      'Neural Network and Fuzzy Logic',
+      'Microcontroller',
+      'Analog and Digital Communication',
+      'Multidisciplinary Minor',
+      'Open Elective',
     ],
     5: [
       'High Voltage Engineering',
@@ -327,38 +321,38 @@ export const DEPARTMENT_SUBJECTS = {
       'Professional Ethics'
     ]
   },
-  'Electronics': {
+  'Civil Engineering': {
     1: [
-      'Engineering Mathematics I',
-      'Engineering Physics',
-      'Engineering Chemistry',
-      'Basic Electronics',
-      'Engineering Graphics',
-      'Communication Skills'
+      'Applied Mathematics 1',
+      'Appliead Chemistry',
+      'Appliead Physics',
+      'Enginnering Mechanics',
+      'Basic Electrical & Electronics Enginnering',
+      'Professional and Communication Ethics'
     ],
     2: [
-      'Engineering Mathematics II',
-      'Electronic Circuits',
-      'Digital Electronics',
-      'Engineering Mechanics',
-      'Computer Programming',
-      'Environmental Studies'
+      'Applied Mathematics 2',
+      'Elective Physics',
+      'Elective Chemistry',
+      'Engineering Graphics',
+      'Program Core Course',
+      
     ],
     3: [
-      'Analog Electronics',
-      'Digital System Design',
-      'Signals and Systems',
-      'Microprocessors',
-      'Electromagnetic Theory',
-      'Probability and Statistics'
+      'Applied mathematics for Civil Engineering-I',
+      'Fluid Mechanics',
+      'Building Materials and Concrete Technology',
+      'Mechanics of Structures',
+      'Open Elective',
+      
     ],
     4: [
-      'Communication Systems',
-      'VLSI Design',
-      'Control Systems',
-      'Microwave Engineering',
-      'Digital Signal Processing',
-      'Embedded Systems'
+      'Applied mathematics for Civil Engineering-II',
+      'Surveying',
+      'Structural Analysis',
+      'Multidisciplinary minor',
+      'Open Elective',
+      
     ],
     5: [
       'Advanced Communication Systems',
@@ -391,7 +385,73 @@ export const DEPARTMENT_SUBJECTS = {
       'Research Methodology',
       'Professional Ethics'
     ]
-  }
+  },
+  'Mechanical Engineering': {
+    1: [
+        'Applied Mathematics 1',
+        'Applied Physics',
+        'Applied Chemistry',
+        'Engineering Mechanics',
+        'Basic Electrical Engineering',
+        'Professional Communication and Ethics'
+    ],
+    2: [
+      'Applied Mathematics 2',
+      'Elective Physics',
+      'Elective Chemistry',
+      'Engineering Graphics',
+      'Program Core Course',
+    ],
+    3: [
+        'Applied Mathematics III',
+        'Strength of Materials',
+        'Thermodynamics',
+        'Manufacturing Processes I',
+        'Skill Enhancement Course',
+        'Open Elective I'
+    ],
+    4: [
+        'Applied Mathematics IV',
+        'Fluid Mechanics',
+        'Manufacturing Processes II',
+        'Kinematics of Machinery',
+        'Multidisciplinary Minor',
+        'Open Elective II'
+    ],
+    5: [
+      'Mechanical Measurements and Controls',
+      'Dynamics of Machinery',
+      'Finite Element Analysis',
+      'Thermal Engineering / Applied Thermodynamics I',
+      'Mini Project – 2A',
+      'Department Level Optional Course – 1'
+  ],
+  6: [
+      'Machine Design',
+      'Turbo Machinery',
+      'Heating, Ventilation, Air Conditioning & Refrigeration',
+      'Measurements and Automation',
+      'Mini Project – 2B',
+      'Department Level Optional Course – 2'
+  ],
+  7: [
+      'Industrial Engineering & Operations Research',
+      'Control Systems / Automation Elective',
+      'Open Elective',
+      'Project / Research Work I',
+      'Departmental Elective I',
+      'Departmental Elective II'
+  ],
+  8: [
+      'Capstone Project / Final Year Project',
+      'Departmental Elective III',
+      'Departmental Elective IV',
+      'Open Elective II',
+      'Professional/Entrepreneurship / Ethics Course'
+  ]
+
+}
+
 };
 
 // Get subjects for a specific department and semester
@@ -399,9 +459,14 @@ export const getSubjectsByDepartmentAndSemester = (department, semester) => {
   if (!department || !semester) return [];
   
   const deptSubjects = DEPARTMENT_SUBJECTS[department];
-  if (!deptSubjects) return [];
+  if (!deptSubjects) {
+    console.warn('Department not found:', department, 'Available:', Object.keys(DEPARTMENT_SUBJECTS));
+    return [];
+  }
   
-  return deptSubjects[semester] || [];
+  const subjects = deptSubjects[semester] || [];
+  // Filter out empty strings and undefined values
+  return subjects.filter(subj => subj && subj.trim() !== '');
 };
 
 // Get all unique subjects for a department

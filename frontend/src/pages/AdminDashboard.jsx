@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Upload, BarChart3, Users, FolderOpen, TrendingUp, FileText } from 'lucide-react';
+import { Upload, BarChart3, FolderOpen, TrendingUp, FileText } from 'lucide-react';
 import { papersAPI } from '../utils/api';
 import { getSubjectsByDepartmentAndSemester } from '../utils/departmentSubjects';
 
 const MOCK_DATA = {
-  departments: ['Computer Engineering ', 'Artificial Intelligence and Data Science', 'Mechanical', 'Civil Engineering', 'Information Technology', 'Electronics and Telecommunication Engineering','Computer Science and Engineering (Data Science) '],
+  departments: ['Computer Engineering', 'Computer Science and Engineering (Data Science)', 'Information Technology', 'Artificial Intelligence and Data Science', 'Electronics and Telecommunication Engineering', 'Civil Engineering', 'Mechanical Engineering'],
   semesters: [1, 2, 3, 4, 5, 6, 7, 8],
-  years: [2021, 2022, 2023, 2024],
+  years: [2021, 2022, 2023, 2024, 2025],
 };
 
 function AdminDashboard() {
@@ -26,7 +26,6 @@ function AdminDashboard() {
     totalPDFs: 0,
     totalDownloads: 0,
     thisMonthUploads: 0,
-    activeStudents: 0,
     recentUploads: []
   });
   const [loadingStats, setLoadingStats] = useState(true);
@@ -46,7 +45,6 @@ function AdminDashboard() {
         totalPDFs: response.data.totalPdfs || 0,
         totalDownloads: response.data.totalDownloads || 0,
         thisMonthUploads: response.data.thisMonthUploads || 0,
-        activeStudents: 0, // Not available in backend yet
         recentUploads: response.data.recentUploads || []
       });
     } catch (err) {
@@ -159,7 +157,7 @@ function AdminDashboard() {
               exit={{ opacity: 0, y: -20 }}
               className="space-y-6"
             >
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <motion.div
                   whileHover={{ y: -5 }}
                   className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl p-6 border border-blue-500/50"
@@ -200,20 +198,6 @@ function AdminDashboard() {
                   </div>
                   <h3 className="text-white text-3xl font-bold mb-1">{stats.thisMonthUploads}</h3>
                   <p className="text-pink-200 text-sm">This Month's Uploads</p>
-                </motion.div>
-
-                <motion.div
-                  whileHover={{ y: -5 }}
-                  className="bg-gradient-to-br from-green-600 to-green-700 rounded-2xl p-6 border border-green-500/50"
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="p-3 bg-white/20 rounded-lg">
-                      <Users size={24} className="text-white" />
-                    </div>
-                    <TrendingUp size={20} className="text-green-200" />
-                  </div>
-                  <h3 className="text-white text-3xl font-bold mb-1">{stats.activeStudents.toLocaleString()}</h3>
-                  <p className="text-green-200 text-sm">Active Students</p>
                 </motion.div>
               </div>
 
