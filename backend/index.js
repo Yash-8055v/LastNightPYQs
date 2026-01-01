@@ -1,7 +1,9 @@
 import express from "express";
+import cors from "cors";
 import dotenv from "dotenv";
 import connectDB from "./db/index.js";
 import authRoutes from "./routes/authRoutes.js";
+import paperRoutes from "./routes/paperRoutes.js";
 
 dotenv.config({
   path: './.env'
@@ -16,17 +18,48 @@ app.use(express.urlencoded({extended: true, limit: "16kb"}))
 app.use(express.static("public")) //! temp files,img ect ko store karne ke liye public folder use karte hai
 
 
-import cors from "cors";
+// ✅ CORS Configuration - Allow both development and production origins
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:5174",
+  process.env.FRONTEND_URL // Production frontend URL from environment variable
+].filter(Boolean); // Remove undefined values
 
-// ✅ Allow frontend (localhost:5173) to access backend
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
 
 
+// Health check endpoint for monitoring
+app.get("/health", (req, res) => {
+  res.status(200).json({ 
+    status: "OK", 
+    message: "Server is running",
+    timestamp: new Date().toISOString()
+  });
+});
+
+app.get("/", (req, res) => {
+  res.send("LastNightPYQs API is running");
+});
 
 
+// API Routes
+app.use("/api/auth", authRoutes);
+app.use("/api/papers", paperRoutes);
+
+
+// Database connection and server startup
 connectDB()
   .then(() => {
     app.on("error", (error) => {   // for checking app is working or not
@@ -34,23 +67,13 @@ connectDB()
         throw error;
       })
     app.listen(process.env.PORT || 3000, () => {
-      console.log(`Server is running on port: http://localhost:${process.env.PORT}`);
+      console.log(`Server is running on port: ${process.env.PORT || 3000}`);
     })
   })
   .catch((err) => {
   console.log("MONGO db connection failed!!", err);
   })
 
-
-
-app.get("/", (req, res) => {
-  res.send("working");
-});
-
-
-app.use("/api/auth", authRoutes);
-import paperRoutes from "./routes/paperRoutes.js";
-app.use("/api/papers", paperRoutes);
 
 
 

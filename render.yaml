@@ -1,0 +1,35 @@
+# Render Blueprint for LastNightPYQs Backend
+
+# This file enables one-click deployment to Render
+# Learn more: https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: lastnightpyqs-backend
+    runtime: node
+    region: oregon
+    plan: free
+    branch: production-deployment
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 3000
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRY
+        value: 7d
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: FRONTEND_URL
+        sync: false

@@ -2,14 +2,18 @@
   "name": "backend",
   "version": "1.0.0",
   "main": "index.js",
-  "scripts": {
-    "start": "nodemon index.js"
-  },
   "type": "module",
-  "keywords": [],
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": ["mern", "question-papers", "education"],
   "author": "Yash Karande",
   "license": "ISC",
-  "description": "",
+  "description": "Backend API for LastNightPYQs - A platform for sharing previous year question papers",
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "cloudinary": "^2.8.0",

@@ -7,7 +7,12 @@
 
 ## 🌐 Live Website
 
-🎯 **Visit Now:** Coming Soon!!
+🎯 **Visit Now:** [Deployment in Progress - Follow DEPLOYMENT.md](./DEPLOYMENT.md)
+
+> After deployment, update this section with your live URLs:
+> - **Frontend**: `https://your-app.netlify.app`
+> - **Backend API**: `https://your-app.onrender.com`
+
 
 ---
 
