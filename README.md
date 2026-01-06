@@ -7,7 +7,7 @@
 
 ## 🌐 Live Website
 
-🎯 [**Visit Now:**](https://lastnightpyqs.netlify.app/)
+🎯 **Visit Now:** [LastNightPYQs](https://lastnightpyqs.netlify.app/)
 
 ---
 
